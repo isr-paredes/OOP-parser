@@ -1,5 +1,4 @@
 %{
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -18,6 +17,7 @@ int yylex(void);
 %token CLASS STRUCT PUBLIC PRIVATE PROTECTED VIRTUAL OVERRIDE
 %token SCOPE COLON LBRACE RBRACE LPAREN RPAREN SEMICOLON
 
+%start program
 %%
 program:
        class_declaration program
@@ -58,16 +58,29 @@ class_body_element:
       ;
 
 function_declaration:
-      VIRTUAL IDENTIFIER LPAREN RPAREN SEMICOLON
+      VIRTUAL IDENTIFIER IDENTIFIER LPAREN RPAREN override_opt SEMICOLON
       {
-          printf("Detected virtual method: %s\n", $2);
+          printf("Detected virtual method: %s\n", $3);
           is_oop = 1;
       }
-      | IDENTIFIER LPAREN RPAREN SEMICOLON
+      | IDENTIFIER IDENTIFIER LPAREN RPAREN override_opt SEMICOLON
       ;
 
+override_opt:
+      OVERRIDE
+      |
+      ;
 %%
-
 void yyerror(const char *s) {
     fprintf(stderr, "Error: %s\n", s);
+}
+
+int main(){
+    yyparse();
+    if(is_oop) {
+       printf("Object-Oriented: YES\n");
+    } else {
+        printf("Object-Oriented: NO\n");
+    }
+    return 0;
 }
